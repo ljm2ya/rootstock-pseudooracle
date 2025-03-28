@@ -1,66 +1,45 @@
-## Foundry
+## ROOTSTOCK PSEUDO ORACLE
 
-**Foundry is a blazing fast, portable and modular toolkit for Ethereum application development written in Rust.**
-
-Foundry consists of:
-
--   **Forge**: Ethereum testing framework (like Truffle, Hardhat and DappTools).
--   **Cast**: Swiss army knife for interacting with EVM smart contracts, sending transactions and getting chain data.
--   **Anvil**: Local Ethereum node, akin to Ganache, Hardhat Network.
--   **Chisel**: Fast, utilitarian, and verbose solidity REPL.
-
-## Documentation
-
-https://book.getfoundry.sh/
-
-## Usage
-
-### Build
-
-```shell
-$ forge build
-```
-
-### Test
-
-```shell
-$ forge test
-```
-
-### Format
-
-```shell
-$ forge fmt
-```
-
-### Gas Snapshots
-
-```shell
-$ forge snapshot
-```
-
-### Anvil
-
-```shell
-$ anvil
-```
+simple oracle code to implement with CDP contract
 
 ### Deploy
 
 ```shell
-$ forge script script/Counter.s.sol:CounterScript --rpc-url <your_rpc_url> --private-key <your_private_key>
+$ forge script script/DeployPseudoOracle.s.sol --rpc-url https://public-node.testnet.rsk.co --broadcast --legacy --evm-version londonforge build
 ```
 
-### Cast
+### Usage
+
+#### Call getPrice:
 
 ```shell
-$ cast <subcommand>
+$ cast call 0x1{deployed address} "getPrice()(uint256)" --rpc-url https://public-node.testnet.rsk.co
 ```
 
-### Help
-
+#### Call setPrice:
 ```shell
-$ forge --help
-$ anvil --help
-$ cast --help
+$ cast send 0x{deployed address} "setPrice(uint256)" {some_price} --rpc-url $ROOTSTOCK_RPC_URL --private-key $PRIVATE_KEY
 ```
+
+### Impliment example
+```solidity
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.0;
+
+interface IPseudoOracle {
+    function getPrice() external view returns (uint256);
+}
+
+contract Manager {
+    IPseudoOracle public oracle;
+
+    constructor(address _oracle) {
+        oracle = IPseudoOracle(_oracle);
+    }
+
+    function useOraclePrice() public view returns (uint256) {
+        return oracle.getPrice();
+    }
+}
+```
+
